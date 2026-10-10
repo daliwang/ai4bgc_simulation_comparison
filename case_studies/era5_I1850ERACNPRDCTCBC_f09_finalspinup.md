@@ -64,7 +64,7 @@ The global sum uses land only (`landmask == 1`):
 
 `TLAI` is dimensionless. Its table value is the same area-weighted sum, not a global-mean leaf area index.
 
-Time-series plots draw both runs on one axes. Model year 1000 is x = 0 (`--reference-zero-year 1000`). AI-restart year 400 is x = 0 (`--case-zero-year 400`). The first snapshots are year 1001 and year 401, so the first markers sit at x = 1. Maps compare the window endpoints: AI year 401 against model year 1001, and AI year 601 against model year 1201. Each map is the AI field, the model field, and the difference. Mapped variables are CWDC, DEADSTEMC, GPP, HR, NEE, SOIL1C, SOIL2C, SOIL3C, SOIL4C, TLAI, TOTCOLC, and TOTSOMC. Phosphorus pools are in the time series and the tables, and are not mapped.
+Time-series plots draw both runs on one axes. Model year 1000 is x = 0 (`--reference-zero-year 1000`). AI-restart year 400 is x = 0 (`--case-zero-year 400`). Filename years 401 and 1001 stay in the tables and are left off the line plots (`--drop-years 401 1001`), the same way the Trendy comparison leaves filename year 1 off its line plots. The first markers sit at x = 21 (AI year 421 and model year 1021). Maps compare the window endpoints: AI year 401 against model year 1001, and AI year 601 against model year 1201. Each map is the AI field, the model field, and the difference. Mapped variables are CWDC, DEADSTEMC, GPP, HR, NEE, SOIL1C, SOIL2C, SOIL3C, SOIL4C, TLAI, TOTCOLC, and TOTSOMC. Phosphorus pools are in the time series and the tables, and are not mapped.
 
 ## Where the comparison products are
 

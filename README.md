@@ -54,8 +54,11 @@ python h0_compare.py timeseries \
   --out-dir /path/to/output \
   --start-year 401 \
   --end-year 601 \
+  --drop-years 401 1001 \
   --forcing era5
 ```
+
+`--drop-years` uses filename years and applies to both tables. `401` is the first AI-restart snapshot and `1001` is the first model snapshot in that window, so both lines start at the next snapshot. The default `--drop-years 1` is the same choice for a Trendy run whose first file is year 1. Those years stay in the tables.
 
 ## 3. Map at one year
 
