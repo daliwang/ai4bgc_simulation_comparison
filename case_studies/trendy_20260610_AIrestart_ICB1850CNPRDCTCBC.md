@@ -104,7 +104,13 @@ All products are under
 | Maps at year 101 | `trendy_ai_restart/maps/h0101/` |
 | Maps at year 201 | `trendy_ai_restart/maps/h0201/` |
 
-Each map folder also has `comparison_summary_<ai h0 file>.csv`. The paired sums for every snapshot are stored in this repository as `trendy_20260610_AIrestart_ICB1850CNPRDCTCBC_global_sums.csv`, so the numbers are available on a machine that does not mount the PathFinder run directory. The PNG files are only on PathFinder (the whole product directory is about 48 MB).
+Each map folder also has `comparison_summary_<ai h0 file>.csv`. The paired sums for every snapshot are stored in this repository as `trendy_20260610_AIrestart_ICB1850CNPRDCTCBC_global_sums.csv`, so the numbers are available on a machine that does not mount the PathFinder run directory.
+
+The figures, global-sum tables, and map CSVs are packed for transfer, without any history NetCDF files, in
+
+`/projects/hpcl-cli185/proj-shared/wangd/AI4ELM/AI_data/JAMES2026/trendy_james_paper_h0_comparison.zip`
+
+Packed on 10 October 2026. The archive is 46 MB (`48066126` bytes). Its SHA-256 is `d1ae8bae45d5503b6d6733714038da2cf20a5a1b96569dea4680137f5426e5f2`. It contains 40 PNG files (10 time-series plots and 30 maps), 3 map summary CSVs, and 26 global-sum tables (16 model variables and 10 AI-restart variables). No `.nc` files are in the archive. The original history files stay in the two run directories above.
 
 ## Results
 
