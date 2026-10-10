@@ -83,3 +83,7 @@ Each variable is a PNG with the AI run, the model run, and the difference. A CSV
 - Map panels use the first time record in that h0 file. The time-series sum averages the time axis first when the file has more than one time.
 
 Write `--out-dir` outside this folder so plot files stay out of the git repo.
+
+## Case studies
+
+`case_studies/era5_I1850ERACNPRDCTCBC_f09_finalspinup.md` documents the ERA5 final-spinup comparison: the case setup, the model-reference and AI-restart directories, and the global-sum results. The paired sums are in `case_studies/era5_I1850ERACNPRDCTCBC_f09_finalspinup_global_sums.csv`. The figures themselves remain on Orion, at the paths given in that note.
