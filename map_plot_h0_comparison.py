@@ -225,7 +225,7 @@ def main():
     parser.add_argument('--model', type=str, required=True, help='Path to the model reference NetCDF file or directory containing one.')
     default_year = datetime.now().strftime("%Y")
     parser.add_argument('--search_pattern', type=str, default=f'*{default_year}*.nc', help='Glob pattern to find latest NetCDF (default: *YYYY*.nc for current year).')
-    parser.add_argument('--exclude_lons', type=float, nargs='*', default=[0.0, 358.75], help='Longitude values to exclude from all panels. Pass no values to disable exclusion.')
+    parser.add_argument('--exclude_lons', type=float, nargs='*', default=[], help='Longitude values to exclude from all panels. Default keeps every longitude. Trendy comparisons pass 0 and 358.75.')
     parser.add_argument('--color_percentiles', type=float, nargs=2, metavar=('LOW', 'HIGH'), default=None, help='Clip color limits to these percentiles (e.g. 2 98). When set, 0-degree longitude is kept and outliers are handled by color scaling instead of masking.')
     parser.add_argument('--variables', nargs='+', default=None, help='Subset of variables to plot (default: all).')
     parser.add_argument('--label1', type=str, default='Latest', help='Panel label for --latest (default: Latest).')

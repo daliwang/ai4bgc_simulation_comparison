@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 """Standard ELM h0 comparison: aggregate, time series, and one-year maps.
 
-The global sum is land only (landmask == 1), drop longitudes 0 and 358.75, then
-sum(data * area * landfrac). Fluxes whose units end in gC/m^2/s are
-multiplied by the seconds in a year and labeled tonC/km^2/year.
+The global sum is land only (landmask == 1), then sum(data * area * landfrac).
+Trendy drops longitudes 0 and 358.75. ERA5 and every other forcing keep them.
+Fluxes whose units end in gC/m^2/s are multiplied by the seconds in a year
+and labeled tonC/km^2/year.
+
+Time-series figures draw both runs on one axes. Each series is shifted so
+its zero year is at x = 0.
 
 The year in a history name is the model year in the filename.
 h0.0021-01-01-00000.nc is year 21 (the usual 20-year snapshot).
@@ -21,7 +25,13 @@ from pathlib import Path
 import numpy as np
 
 SECONDS_PER_YEAR = 365 * 24 * 3600
-DEFAULT_EXCLUDE_LONS = (0.0, 358.75)
+# Trendy model output is unusable on the dateline columns, so those two
+# longitudes are left out of sums and maps. ERA5 and other forcings keep them.
+TRENDY_EXCLUDE_LONS = (0.0, 358.75)
+FORCING_EXCLUDE_LONS = {
+    "trendy": TRENDY_EXCLUDE_LONS,
+    "era5": (),
+}
 H0_YEAR = re.compile(r"\.elm\.h0\.(\d{4})-")
 
 TIMESERIES_VARIABLES = [
@@ -205,6 +215,8 @@ def plot_timeseries(
     variables: list[str],
     plot_dir: Path,
     drop_years: set[int],
+    reference_zero_year: int | None,
+    case_zero_year: int | None,
 ) -> list[Path]:
     import matplotlib
 
@@ -226,11 +238,16 @@ def plot_timeseries(
         if ref.size == 0 or case.size == 0:
             print(f"Skipping {name}: no years left after dropping {sorted(drop_years)}.")
             continue
+        ref_zero = int(ref[:, 0].min()) if reference_zero_year is None else reference_zero_year
+        case_zero = int(case[:, 0].min()) if case_zero_year is None else case_zero_year
+        ref_x = ref[:, 0] - ref_zero
+        case_x = case[:, 0] - case_zero
         fig, ax = plt.subplots()
-        ax.plot(ref[:, 0], ref[:, 1], label=reference_label)
-        ax.plot(case[:, 0], case[:, 1], label=case_label)
-        ax.set_xlabel("Year")
+        ax.plot(ref_x, ref[:, 1], marker="o", label=f"{reference_label} (0 = year {ref_zero})")
+        ax.plot(case_x, case[:, 1], marker="o", label=f"{case_label} (0 = year {case_zero})")
+        ax.set_xlabel("Years since start")
         ax.set_ylabel(unit if unit else "Sum")
+        ax.set_xlim(left=0)
         ax.set_title(f"{name} comparison")
         ax.legend()
         fig.tight_layout()
@@ -297,6 +314,28 @@ def _add_variable_arg(parser: argparse.ArgumentParser, default: list[str]) -> No
     )
 
 
+def _add_forcing_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--forcing",
+        choices=tuple(FORCING_EXCLUDE_LONS),
+        default="era5",
+        help="era5 keeps every longitude (default). trendy drops longitudes 0 and 358.75.",
+    )
+    parser.add_argument(
+        "--exclude-lons",
+        type=float,
+        nargs="*",
+        default=None,
+        help="Longitudes to drop. Overrides --forcing. Pass no values to keep every longitude.",
+    )
+
+
+def _exclude_lons(args) -> tuple[float, ...]:
+    if args.exclude_lons is not None:
+        return tuple(args.exclude_lons)
+    return FORCING_EXCLUDE_LONS[args.forcing]
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -306,7 +345,7 @@ def build_parser() -> argparse.ArgumentParser:
     aggregate.add_argument("--out-dir", type=Path, required=True)
     _add_year_args(aggregate, required=True)
     _add_variable_arg(aggregate, TIMESERIES_VARIABLES)
-    aggregate.add_argument("--exclude-lons", type=float, nargs="*", default=list(DEFAULT_EXCLUDE_LONS))
+    _add_forcing_args(aggregate)
 
     series = sub.add_parser("timeseries", help="Aggregate one case and plot it against an existing reference.")
     series.add_argument("--reference-tables", type=Path, required=True, help="Directory of reference new_twenty_year_sum_*.txt files.")
@@ -317,7 +356,19 @@ def build_parser() -> argparse.ArgumentParser:
     _add_year_args(series, required=True)
     _add_variable_arg(series, TIMESERIES_VARIABLES)
     series.add_argument("--drop-years", type=int, nargs="*", default=[1], help="Filename years left off the line plots (default: 1).")
-    series.add_argument("--exclude-lons", type=float, nargs="*", default=list(DEFAULT_EXCLUDE_LONS))
+    series.add_argument(
+        "--reference-zero-year",
+        type=int,
+        default=None,
+        help="Reference filename year drawn at x=0. Default: first year kept in the reference table.",
+    )
+    series.add_argument(
+        "--case-zero-year",
+        type=int,
+        default=None,
+        help="AI-restart filename year drawn at x=0. Default: first year kept in the case table.",
+    )
+    _add_forcing_args(series)
 
     maps = sub.add_parser("maps", help="Three-panel maps of one AI h0 file against the reference h0 file.")
     maps.add_argument("--year", type=int, required=True, help="Filename year, e.g. 21, 101, or 201.")
@@ -329,13 +380,13 @@ def build_parser() -> argparse.ArgumentParser:
     maps.add_argument("--model-label", default="Model")
     maps.add_argument("--out-dir", type=Path, required=True)
     _add_variable_arg(maps, MAP_VARIABLES)
-    maps.add_argument("--exclude-lons", type=float, nargs="*", default=list(DEFAULT_EXCLUDE_LONS))
+    _add_forcing_args(maps)
     return parser
 
 
 def main(argv: list[str] | None = None) -> None:
     args = build_parser().parse_args(argv)
-    exclude = tuple(args.exclude_lons)
+    exclude = _exclude_lons(args)
     if args.command == "aggregate":
         aggregate_run(args.run_dir, args.out_dir, args.variables, *_years(args), exclude)
         return
@@ -355,6 +406,8 @@ def main(argv: list[str] | None = None) -> None:
             args.variables,
             case_tables / "timeseries",
             set(args.drop_years),
+            args.reference_zero_year,
+            args.case_zero_year,
         )
         return
     if args.command == "maps":
