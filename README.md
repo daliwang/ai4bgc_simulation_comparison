@@ -86,4 +86,6 @@ Write `--out-dir` outside this folder so plot files stay out of the git repo.
 
 ## Case studies
 
-`case_studies/era5_I1850ERACNPRDCTCBC_f09_finalspinup.md` documents the ERA5 final-spinup comparison: the case setup, the model-reference and AI-restart directories, and the global-sum results. The paired sums are in `case_studies/era5_I1850ERACNPRDCTCBC_f09_finalspinup_global_sums.csv`. The figures themselves remain on Orion, at the paths given in that note.
+`case_studies/era5_I1850ERACNPRDCTCBC_f09_finalspinup.md` documents the ERA5 final-spinup comparison on Frontier: the case setup, the model-reference and AI-restart directories, and the global-sum results. The paired sums are in `case_studies/era5_I1850ERACNPRDCTCBC_f09_finalspinup_global_sums.csv`. The figures themselves remain on Orion, at the paths given in that note.
+
+`case_studies/trendy_20260610_AIrestart_ICB1850CNPRDCTCBC.md` documents the TRENDY comparison on PathFinder: the AI restart run on PathFinder, the 801-year model-restart reference whose history was written on CADES, and the global-sum results. The paired sums are in `case_studies/trendy_20260610_AIrestart_ICB1850CNPRDCTCBC_global_sums.csv`. The figures themselves remain on PathFinder, at the paths given in that note.
